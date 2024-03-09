@@ -22,7 +22,7 @@ export const emailVerificationTemplate = `
             align-items: center;
             gap: clamp(1.5rem, 1.3295rem + 0.4545vi, 1.875rem);">
       <thead style="display: block;
-                background-image: url('https://manage.izme.ai/images/grid-background.png');
+                background-image: url('https://manage.tommy.ai/images/grid-background.png');
                 background-size: initial;
                 background-repeat: no-repeat;
                 background-position: center;
@@ -91,7 +91,7 @@ export const emailVerificationTemplate = `
           <td style="display: block;
                 margin: auto;
                 max-width: max-content">
-            <a href="https://manage.izme.ai/" style="padding: clamp(0.75rem, 0.6648rem + 0.2273vi, 0.9375rem) clamp(1.5rem, 1.3295rem + 0.4545vi, 1.875rem);
+            <a href="https://manage.tommy.ai/" style="padding: clamp(0.75rem, 0.6648rem + 0.2273vi, 0.9375rem) clamp(1.5rem, 1.3295rem + 0.4545vi, 1.875rem);
                 font-size: clamp(1.2rem, 1.0352rem + 0.4394vw, 1.5625rem);
                 display: block;
                 text-align: center;

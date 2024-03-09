@@ -14,6 +14,7 @@ import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { emailVerificationTemplate } from './email-verification-template';
 import { createUserTemplate } from './create-user-template';
+import { runtime } from '../../service/constants';
 
 interface IProps {
   usersTable: Table;
@@ -34,8 +35,8 @@ export class TommyCognito extends Construct {
     const { usersTable } = props;
 
     this.preTokenGenerationLambda = new NodejsFunction(this, 'PreTokenGeneration', {
-      runtime: Runtime.NODEJS_18_X,
-      entry: 'service/lambdas/authentication/preTokenGeneration.ts',
+      runtime: runtime,
+      entry: 'service/lambdas/auth/preTokenGeneration.ts',
       timeout: Duration.seconds(5),
       environment: {
         USERS_TABLE_NAME: usersTable.tableName,
@@ -84,7 +85,7 @@ export class TommyCognito extends Construct {
             };
           },
         },
-        organization: {
+        MEMBER: {
           bind(): CustomAttributeConfig {
             return {
               dataType: 'String',

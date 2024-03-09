@@ -22,7 +22,7 @@ export const createUserTemplate = `
             align-items: center;
             gap: clamp(1.5rem, 1.3295rem + 0.4545vi, 1.875rem);">
       <thead style="display: block;
-                background-image: url('https://manage.izme.ai/images/grid-background.png');
+                background-image: url('https://manage.tommy.ai/images/grid-background.png');
                 background-size: initial;
                 background-repeat: no-repeat;
                 background-position: center;
@@ -35,7 +35,7 @@ export const createUserTemplate = `
             <td style="display: block; margin: auto;">
               <img class="logo-image" style="
                 height: clamp(2.4883rem, 1.8854rem + 1.6077vw, 3.8147rem);
-                z-index: 1;" src="https://lh3.googleusercontent.com/d/1wpeH_3sBhhAqWtXkZ9GksV7s_tybKRUK=s220?authuser=0" alt="izme-logo">
+                z-index: 1;" src="https://lh3.googleusercontent.com/d/1wpeH_3sBhhAqWtXkZ9GksV7s_tybKRUK=s220?authuser=0" alt="tommy-logo">
             </td>
         </tr>
         <tr class="title"  style="display: block;
@@ -118,7 +118,7 @@ export const createUserTemplate = `
           <td style="display: block;
                 margin: auto;
                 max-width: max-content">
-            <a href="https://manage.izme.ai/" style="padding: clamp(0.75rem, 0.6648rem + 0.2273vi, 0.9375rem) clamp(1.5rem, 1.3295rem + 0.4545vi, 1.875rem);
+            <a href="https://manage.tommy.ai/" style="padding: clamp(0.75rem, 0.6648rem + 0.2273vi, 0.9375rem) clamp(1.5rem, 1.3295rem + 0.4545vi, 1.875rem);
                 font-size: clamp(1.2rem, 1.0352rem + 0.4394vw, 1.5625rem);
                 display: block;
                 text-align: center;
@@ -153,7 +153,7 @@ export const createUserTemplate = `
               margin: auto;
               text-align: center;">
               <p style="margin: 0">This email was sent to you by Izme.</p>
-              <p style="margin: 0">You are receiving this email because someone invited you to his organization.</p>
+              <p style="margin: 0">You are receiving this email because someone invited you to his MEMBER.</p>
             </td>
           </tr>
       </tfoot>
