@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import * as dotenv from 'dotenv';
-import { ServerlessProjectStack } from '../lib/serverless-project-stack';
-import { userInfo } from 'os';
-import { getCurrentGitBranch } from '../utils/git-util';
+import "source-map-support/register";
+import * as cdk from "aws-cdk-lib";
+import * as dotenv from "dotenv";
+import { ServerlessProjectStack } from "../lib/serverless-project-stack";
+import { userInfo } from "os";
+import { getCurrentGitBranch } from "../utils/git-util";
 
 dotenv.config();
 
@@ -14,10 +14,9 @@ const serverlessProject = new ServerlessProjectStack(
   `${userInfo().username}${getCurrentGitBranch()}ServerlessProjectStack`,
   {
     env: {
-      region: process.env.REGION || 'eu-central-1',
+      region: process.env.REGION || "eu-central-1",
     },
-  },
+  }
 );
 
 serverlessProject.init();
-

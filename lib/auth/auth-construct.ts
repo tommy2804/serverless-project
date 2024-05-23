@@ -13,33 +13,41 @@ import { Table } from "aws-cdk-lib/aws-dynamodb";
 
 interface AuthConstructProps {
   usersTable: Table;
-  membersTable: Table;
+  organizationTable: Table;
   giftsTable: Table;
   userPoolId: string;
   DEFAULT_LAMBDA_ENV: any;
 }
 
 export class AuthConstruct extends Construct {
-  public readonly authApi: RestApi;
   public readonly authorizer: CfnAuthorizer;
   public readonly signUpLambda: NodejsFunction;
   public readonly signInLambda: NodejsFunction;
   public readonly signOutLambda: NodejsFunction;
   public readonly refreshLambda: NodejsFunction;
+  public readonly isLoggedInLambda: NodejsFunction;
+  public readonly forceChangePasswordLambda: NodejsFunction;
+  public readonly verifyEmailLambda: NodejsFunction;
+  public readonly resendConfirmationCodeLambda: NodejsFunction;
+  public readonly forgotPasswordLambda: NodejsFunction;
+  public readonly resetPasswordLambda: NodejsFunction;
+  public readonly resetPasswordAuthLambda: NodejsFunction;
+  public readonly refreshTokenCodeLambda: NodejsFunction;
+  public readonly getUserDetailsLambda: NodejsFunction;
   public readonly getUserLambda: NodejsFunction;
   public readonly getUserGiftsLambda: NodejsFunction;
-  public readonly getUserMembersLambda: NodejsFunction;
-  public readonly getUserGiftsForMemberLambda: NodejsFunction;
+  public readonly getUserOrganizationsLambda: NodejsFunction;
+  public readonly getUserGiftsForOrganizationLambda: NodejsFunction;
 
   constructor(scope: Construct, id: string, authConstructProps: AuthConstructProps) {
     super(scope, id);
     const stack = Stack.of(this);
 
-    const { usersTable, membersTable, giftsTable, userPoolId, DEFAULT_LAMBDA_ENV } =
+    const { usersTable, organizationTable, giftsTable, userPoolId, DEFAULT_LAMBDA_ENV } =
       authConstructProps;
 
     const USERS_TABLE_NAME = usersTable.tableName;
-    const MEMBERS_TABLE_NAME = membersTable.tableName;
+    const ORGANIZATION_TABLE_NAME = organizationTable.tableName;
     const GIFT_EVENTS_TABLE_NAME = giftsTable.tableName;
 
     const userPoolArn = `arn:aws:cognito-idp:${stack.region}:${stack.account}:userpool/${userPoolId}`;
@@ -53,13 +61,13 @@ export class AuthConstruct extends Construct {
     const signInLambdRole = createLambdaBasicRole(this, "SignInLambdaRole");
     signInLambdRole.addToPolicy(createCognitoPolicy(["AdminGetUser", "AdminUserGlobalSignOut"]));
 
-    const signUpLambda = new NodejsFunction(this, "SignUp", {
+    this.signUpLambda = new NodejsFunction(this, "SignUp", {
       runtime,
       entry: "service/lambdas/auth/signup.ts",
       environment: {
         ...DEFAULT_LAMBDA_ENV,
         USERS_TABLE_NAME: USERS_TABLE_NAME,
-        MEMBERS_TABLE_NAME: MEMBERS_TABLE_NAME,
+        ORGANIZATION_TABLE_NAME: ORGANIZATION_TABLE_NAME,
       },
       memorySize: 256,
       timeout: Duration.seconds(30),
@@ -70,14 +78,14 @@ export class AuthConstruct extends Construct {
       "dynamodb:PutItem",
       "dynamodb:readItem",
     ]);
-    const putMembers = getTablePolicy(stack, MEMBERS_TABLE_NAME, [
+    const putOrganizations = getTablePolicy(stack, ORGANIZATION_TABLE_NAME, [
       "dynamodb:PutItem",
       "dynamodb:readItem",
     ]);
-    signUpLambda.addToRolePolicy(putUsers);
-    signUpLambda.addToRolePolicy(putMembers);
+    this.signUpLambda.addToRolePolicy(putUsers);
+    this.signUpLambda.addToRolePolicy(putOrganizations);
 
-    const signInLambda = new NodejsFunction(this, "SignIn", {
+    this.signInLambda = new NodejsFunction(this, "SignIn", {
       runtime,
       entry: "service/lambdas/auth/signin.ts",
       environment: {
@@ -96,7 +104,7 @@ export class AuthConstruct extends Construct {
       createCognitoPolicy(["AdminGetUser", "AdminInitiateAuth", "AdminRespondToAuthChallenge"])
     );
 
-    const forceChangePasswordLambda = new NodejsFunction(this, "ForceChangePassword", {
+    this.forceChangePasswordLambda = new NodejsFunction(this, "ForceChangePassword", {
       runtime,
       entry: "service/lambdas/auth/forceChangePassword.ts",
       environment: {
@@ -108,9 +116,9 @@ export class AuthConstruct extends Construct {
       role: forceChangePasswordLambdRole,
     });
     const updateUserstTable = getTablePolicy(stack, USERS_TABLE_NAME, ["dynamodb:UpdateItem"]);
-    forceChangePasswordLambda.addToRolePolicy(updateUserstTable);
+    this.forceChangePasswordLambda.addToRolePolicy(updateUserstTable);
 
-    const isLoggedInLambda = new NodejsFunction(this, "IsLoggedIn", {
+    this.isLoggedInLambda = new NodejsFunction(this, "IsLoggedIn", {
       runtime,
       entry: "service/lambdas/auth/isLoggedIn.ts",
       environment: {
@@ -120,9 +128,9 @@ export class AuthConstruct extends Construct {
       memorySize: 256,
     });
     const queryGiftsTable = getTablePolicy(stack, GIFT_EVENTS_TABLE_NAME, ["dynamodb:Query"]);
-    isLoggedInLambda.addToRolePolicy(queryGiftsTable);
+    this.isLoggedInLambda.addToRolePolicy(queryGiftsTable);
 
-    const verifyEmailLambda = new NodejsFunction(this, "VerifyEmail", {
+    this.verifyEmailLambda = new NodejsFunction(this, "VerifyEmail", {
       runtime,
       entry: "service/lambdas/auth/verifyEmail.ts",
       environment: {
@@ -139,7 +147,7 @@ export class AuthConstruct extends Construct {
     );
     resendConfirmationCodeLambdaRole.addToPolicy(createCognitoPolicy(["ResendConfirmationCode"]));
 
-    const resendConfirmationCodeLambda = new NodejsFunction(this, "ResendConfirmationCode", {
+    this.resendConfirmationCodeLambda = new NodejsFunction(this, "ResendConfirmationCode", {
       runtime,
       entry: "service/lambdas/auth/resendConfirmationCode.ts",
       environment: {
@@ -148,7 +156,7 @@ export class AuthConstruct extends Construct {
       role: resendConfirmationCodeLambdaRole,
     });
 
-    const forgotPasswordLambda = new NodejsFunction(this, "ForgotPassword", {
+    this.forgotPasswordLambda = new NodejsFunction(this, "ForgotPassword", {
       runtime,
       entry: "service/lambdas/auth/forgotPassword.ts",
       environment: {
@@ -156,7 +164,7 @@ export class AuthConstruct extends Construct {
       },
     });
 
-    const resetPasswordLambda = new NodejsFunction(this, "ResetPassword", {
+    this.resetPasswordLambda = new NodejsFunction(this, "ResetPassword", {
       runtime,
       entry: "service/lambdas/auth/resetPassword.ts",
       environment: {
@@ -164,7 +172,7 @@ export class AuthConstruct extends Construct {
       },
     });
 
-    const resetPasswordAuthLambda = new NodejsFunction(this, "ResetPasswordAuth", {
+    this.resetPasswordAuthLambda = new NodejsFunction(this, "ResetPasswordAuth", {
       runtime,
       entry: "service/lambdas/auth/resetPasswordAuth.ts",
       environment: {
@@ -175,7 +183,7 @@ export class AuthConstruct extends Construct {
     const refreshTokenCodeLambdaRole = createLambdaBasicRole(this, "RefreshTokenLambdaRole");
     refreshTokenCodeLambdaRole.addToPolicy(createCognitoPolicy(["AdminUserGlobalSignOut"]));
 
-    const refreshTokenCodeLambda = new NodejsFunction(this, "RefreshToken", {
+    this.refreshTokenCodeLambda = new NodejsFunction(this, "RefreshToken", {
       runtime,
       entry: "service/lambdas/auth/refreshToken.ts",
       environment: {
@@ -185,7 +193,7 @@ export class AuthConstruct extends Construct {
       role: refreshTokenCodeLambdaRole,
     });
 
-    const getUserDetailsLambda = new NodejsFunction(this, "GetUserDetails", {
+    this.getUserDetailsLambda = new NodejsFunction(this, "GetUserDetails", {
       runtime,
       entry: "service/lambdas/auth/get-cognito-details.ts",
       environment: {
@@ -204,7 +212,7 @@ export class AuthConstruct extends Construct {
     const signOutLambdaRole = createLambdaBasicRole(this, "SignOutLambdaRole");
     signOutLambdaRole.addToPolicy(createCognitoPolicy(["AdminUserGlobalSignOut"]));
 
-    const signOutLambda = new NodejsFunction(this, "SignOut", {
+    this.signOutLambda = new NodejsFunction(this, "SignOut", {
       runtime,
       entry: "service/lambdas/auth/signOut.ts",
       environment: {
@@ -212,26 +220,6 @@ export class AuthConstruct extends Construct {
       },
       role: signOutLambdaRole,
     });
-
-    this.authApi = new RestApi(this, "AuthEndpoints", {
-      defaultCorsPreflightOptions: {
-        allowOrigins: Cors.ALL_ORIGINS,
-        allowMethods: Cors.ALL_METHODS,
-      },
-    });
-
-    const cognitoAuthorizer = new CfnAuthorizer(this, "AuthServiceAuthorizer", {
-      name: "auth-service-authorizer",
-      restApiId: this.authApi.restApiId,
-      type: "COGNITO_USER_POOLS",
-      identitySource: "method.request.header.Authorization",
-      providerArns: [userPoolArn],
-      authType: "cognito_user_pools",
-    });
-    const authorizer = {
-      authorizerId: cognitoAuthorizer.ref,
-      authorizationType: AuthorizationType.COGNITO,
-    };
 
     const smsMfaLambda = new NodejsFunction(this, "SmsMfa", {
       runtime,
@@ -257,19 +245,7 @@ export class AuthConstruct extends Construct {
       },
     });
     // wafConstruct.applyWafToApiGw(this, authApi, "Auth");
-    const authRoute = this.authApi.root.addResource("auth");
-    createApiResource(authRoute, "POST", signUpLambda, "signUp");
-    createApiResource(authRoute, "POST", signInLambda, "signIn");
-    createApiResource(authRoute, "POST", verifyEmailLambda, "verifyEmail");
-    createApiResource(authRoute, "POST", forceChangePasswordLambda, "forceChangePassword");
-    createApiResource(authRoute, "POST", resendConfirmationCodeLambda, "resendConfirmationCode");
-    createApiResource(authRoute, "POST", forgotPasswordLambda, "forgotPassword");
-    createApiResource(authRoute, "POST", resetPasswordLambda, "resetPassword");
-    createApiResource(authRoute, "POST", resetPasswordAuthLambda, "resetPasswordAuth", authorizer);
-    createApiResource(authRoute, "GET", signOutLambda, "signOut", authorizer);
-    createApiResource(authRoute, "GET", refreshTokenCodeLambda, "refreshToken");
-    createApiResource(authRoute, "GET", getUserDetailsLambda, "getUserDetails", authorizer);
-    createApiResource(authRoute, "GET", isLoggedInLambda, "isLoggedIn", authorizer);
+
     // createApiResource(authRoute, 'POST', smsMfaLambda, 'smsMfa');
     // createApiResource(authRoute, 'POST', updateMfaLambda, 'updateMfa', authorizer);
     // createApiResource(authRoute, 'POST', updatePhoneLambda, 'updatePhone', authorizer);

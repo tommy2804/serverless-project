@@ -26,19 +26,19 @@ export const handler = async function (
     const email = decodedToken['email'];
     const username = decodedToken['cognito:username'];
     const permissions = decodedToken['custom:permissions'];
-    const MEMBER = decodedToken['custom:MEMBER'];
+    const organization = decodedToken['custom:organization'];
     const root = decodedToken['custom:root'];
     let giftsEvents: any[] = [];
 
-    // only users created by other MEMBER users can have gifts events
+    // only users created by other organization users can have gifts events
     if (email === username) {
       const giftEevntsRes = await dynamoDB.send(
         new QueryCommand({
           TableName: GIFT_EVENTS_TABLE_NAME as string,
-          KeyConditionExpression: 'MEMBER = :MEMBER',
+          KeyConditionExpression: 'organization = :organization',
           FilterExpression: '#status = :status',
           ExpressionAttributeValues: {
-            ':MEMBER': { S: MEMBER },
+            ':organization': { S: organization },
             ':status': { S: GIFT_STATUS.ACTIVE },
           },
           ExpressionAttributeNames: {
@@ -56,7 +56,7 @@ export const handler = async function (
       payload: {
         email,
         username,
-        MEMBER,
+        organization,
         permissions,
         root,
         giftsEvents,

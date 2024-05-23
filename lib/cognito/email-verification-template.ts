@@ -103,7 +103,7 @@ export const emailVerificationTemplate = `
                 transition: background-color 0.3s ease;
                 margin: auto;
                 gap: clamp(0.75rem, 0.6648rem + 0.2273vi, 0.9375rem);">
-              Go to Izme App
+              Go to  App
               <svg width="21" height="20" viewbox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.66634 10.0013H16.333M16.333 10.0013L10.4997 15.8346M16.333 10.0013L10.4997 4.16797" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>

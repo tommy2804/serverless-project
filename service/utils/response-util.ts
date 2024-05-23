@@ -1,8 +1,8 @@
-import { APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
+import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 
 const defaultHeaders = {
-  'Content-Type': 'text/plain',
-  'Access-Control-Allow-Origin': '*',
+  "Content-Type": "text/plain",
+  "Access-Control-Allow-Origin": "*",
 };
 
 interface IHeaders {
@@ -17,7 +17,7 @@ const buildResponse = (
   body: string,
   statusCode: number = 200,
   additionalHeaders: IHeaders = {},
-  multiValueHeaders: IMultiHeaders = {},
+  multiValueHeaders: IMultiHeaders = {}
 ): APIGatewayProxyResult => ({
   statusCode,
   body,
