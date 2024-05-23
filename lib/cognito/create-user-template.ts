@@ -66,7 +66,7 @@ export const createUserTemplate = `
                 font-weight: 400;
                 color: #475467;
                 text-align: center;">
-            <b>Hey</b>, thanks for joining Izme revolution!
+            <b>Hey</b>, thanks for joining  revolution!
           </td>
           <td style="margin: 0;
                 font-size: clamp(1.2rem, 1.0352rem + 0.4394vw, 1.5625rem);
@@ -130,7 +130,7 @@ export const createUserTemplate = `
                 transition: background-color 0.3s ease;
                 margin: auto;
                 gap: clamp(0.75rem, 0.6648rem + 0.2273vi, 0.9375rem);">
-              Go to Izme App
+              Go to  App
               <svg width="21" height="20" viewbox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.66634 10.0013H16.333M16.333 10.0013L10.4997 15.8346M16.333 10.0013L10.4997 4.16797" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -152,8 +152,8 @@ export const createUserTemplate = `
               color: #7A7D85;
               margin: auto;
               text-align: center;">
-              <p style="margin: 0">This email was sent to you by Izme.</p>
-              <p style="margin: 0">You are receiving this email because someone invited you to his MEMBER.</p>
+              <p style="margin: 0">This email was sent to you by .</p>
+              <p style="margin: 0">You are receiving this email because someone invited you to his organization.</p>
             </td>
           </tr>
       </tfoot>

@@ -1,12 +1,12 @@
-import { Stack } from 'aws-cdk-lib';
-import { ManagedPolicy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { Construct } from 'constructs';
+import { Stack } from "aws-cdk-lib";
+import { ManagedPolicy, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
+import { Construct } from "constructs";
 
 const createLambdaBasicRole = (scope: Construct, id: string): Role =>
   new Role(scope, id, {
-    assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
+    assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
     managedPolicies: [
-      ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
+      ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
     ],
   });
 
@@ -21,7 +21,7 @@ const createCognitoPolicyFunction =
 const createRekognitionLambdaRole = (scope: Construct, id: string): Role => {
   const rekognitionRole = createLambdaBasicRole(scope, id);
   rekognitionRole.addManagedPolicy(
-    ManagedPolicy.fromAwsManagedPolicyName('AmazonRekognitionFullAccess'),
+    ManagedPolicy.fromAwsManagedPolicyName("AmazonRekognitionFullAccess")
   );
   return rekognitionRole;
 };

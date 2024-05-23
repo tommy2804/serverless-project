@@ -9,7 +9,7 @@ import {
 import { DynamoDB, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { buildResponse } from "../../utils";
 
-const { CLIENT_APP_ID, REGION, USERS_TABLE_NAME, MEMBERS_TABLE_NAME } = process.env;
+const { CLIENT_APP_ID, REGION, USERS_TABLE_NAME, ORGANIZATION_TABLE_NAME } = process.env;
 
 const dynamoDB = new DynamoDB({ region: REGION });
 const cognitoClient = new CognitoIdentityProviderClient({ region: REGION });
@@ -18,13 +18,13 @@ export const handler = async function (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
   console.log("start signup");
-  console.log("event", CLIENT_APP_ID, USERS_TABLE_NAME, MEMBERS_TABLE_NAME, REGION);
+  console.log("event", CLIENT_APP_ID, USERS_TABLE_NAME, ORGANIZATION_TABLE_NAME, REGION);
 
-  const { memberName, username, email, password } = JSON.parse(event.body as string);
-  console.log(" required fields", { memberName, username, email, password });
+  const { OrganizationName, username, email, password } = JSON.parse(event.body as string);
+  console.log(" required fields", { OrganizationName, username, email, password });
 
   if (!username || !email || !password) {
-    console.log("Missing required fields", { memberName, username, email, password });
+    console.log("Missing required fields", { OrganizationName, username, email, password });
     return buildResponse(
       JSON.stringify({
         success: false,
@@ -57,7 +57,7 @@ export const handler = async function (
     );
   }
 
-  const memberUuid = uuidv4();
+  const organizationUUid = uuidv4();
 
   const signUpParams: SignUpRequest = {
     ClientId: CLIENT_APP_ID,
@@ -66,6 +66,7 @@ export const handler = async function (
     UserAttributes: [
       { Name: "email", Value: lowerEmail },
       { Name: "custom:root", Value: "true" },
+      { Name: "custom:organization", Value: organizationUUid },
     ],
     ValidationData: [{ Name: "email", Value: lowerEmail }],
   };
@@ -80,7 +81,7 @@ export const handler = async function (
         Item: {
           id: { S: lowerUsername },
           email: { S: lowerEmail },
-          member: { S: memberUuid },
+          Organization: { S: organizationUUid },
           role: { S: "admin" },
           root: { BOOL: true },
           created_on: { S: new Date().toISOString() },
@@ -90,21 +91,21 @@ export const handler = async function (
       })
     );
 
-    const putMember = dynamoDB.send(
+    const putOrganization = dynamoDB.send(
       new PutItemCommand({
-        TableName: MEMBERS_TABLE_NAME,
+        TableName: ORGANIZATION_TABLE_NAME,
         Item: {
-          id: { S: memberUuid },
+          id: { S: organizationUUid },
           name: { S: username },
           rootUser: { S: lowerEmail },
-          tokens: { N: "0" },
+          tokens: { N: "1000" },
           giftsEvents: { L: [] },
         },
         ConditionExpression: "attribute_not_exists(id)",
       })
     );
 
-    await Promise.all([putUser, putMember]);
+    await Promise.all([putUser, putOrganization]);
 
     return buildResponse(
       JSON.stringify({

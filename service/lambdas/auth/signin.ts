@@ -38,7 +38,6 @@ export const handler = async function (
       );
     }
     const lowerUsername = username.toLowerCase();
-    const lowerEmail = email.toLowerCase();
 
     const user = await cognitoClient.send(
       new AdminGetUserCommand({
@@ -123,16 +122,18 @@ export const handler = async function (
     const payload = decode(idToken as string) as JwtPayload;
     const csrfToken = payload[XSRF_TOKEN_KEY];
 
+    console.log("Sign in successful", { idToken, accessToken, refreshToken, csrfToken });
+
     return buildResponse(
       JSON.stringify({ success: true }),
       200,
       {},
       {
         "Set-Cookie": [
-          `${ID_TOKEN_KEY}=${idToken}; domain=.${domain}; path=/; secure; HttpOnly; SameSite=Strict`,
-          `${ACCESS_TOKEN_KEY}=${accessToken}; domain=.${domain}; path=/; secure; HttpOnly; SameSite=Strict`,
-          `${REFRESH_TOKEN}=${refreshToken}; domain=.${domain}; path=/auth/refreshToken; secure; HttpOnly; SameSite=Strict`,
-          `${XSRF_TOKEN_KEY}=${csrfToken}; domain=.${domain}; path=/; secure; SameSite=Strict`,
+          `${ID_TOKEN_KEY}=${idToken}; path=/; secure; HttpOnly; SameSite=Strict`,
+          `${ACCESS_TOKEN_KEY}=${accessToken}; path=/; secure; HttpOnly; SameSite=Strict`,
+          `${REFRESH_TOKEN}=${refreshToken}; path=/auth/refreshToken; secure; HttpOnly; SameSite=Strict`,
+          `${XSRF_TOKEN_KEY}=${csrfToken}; path=/; secure; SameSite=Strict`,
         ],
       }
     );

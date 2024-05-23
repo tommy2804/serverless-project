@@ -1,6 +1,6 @@
-import { CfnOutput, Duration } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-import { Stack } from 'aws-cdk-lib';
+import { CfnOutput, Duration } from "aws-cdk-lib";
+import { Construct } from "constructs";
+import { Stack } from "aws-cdk-lib";
 import {
   CustomAttributeConfig,
   UserPool,
@@ -8,19 +8,19 @@ import {
   UserPoolClient,
   VerificationEmailStyle,
   Mfa,
-} from 'aws-cdk-lib/aws-cognito';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
-import { Table } from 'aws-cdk-lib/aws-dynamodb';
-import { emailVerificationTemplate } from './email-verification-template';
-import { createUserTemplate } from './create-user-template';
-import { runtime } from '../../service/constants';
+} from "aws-cdk-lib/aws-cognito";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { Runtime } from "aws-cdk-lib/aws-lambda";
+import { Table } from "aws-cdk-lib/aws-dynamodb";
+import { emailVerificationTemplate } from "./email-verification-template";
+import { createUserTemplate } from "./create-user-template";
+import { runtime } from "../../service/constants";
 
 interface IProps {
   usersTable: Table;
 }
 
-const noReplyEmail = 'no-reply@tommy.dev';
+const noReplyEmail = "no-reply@tommy.dev";
 
 export class TommyCognito extends Construct {
   readonly userPoolId: string;
@@ -34,26 +34,26 @@ export class TommyCognito extends Construct {
     const stack = Stack.of(this);
     const { usersTable } = props;
 
-    this.preTokenGenerationLambda = new NodejsFunction(this, 'PreTokenGeneration', {
+    this.preTokenGenerationLambda = new NodejsFunction(this, "PreTokenGeneration", {
       runtime: runtime,
-      entry: 'service/lambdas/auth/preTokenGeneration.ts',
+      entry: "service/lambdas/auth/preTokenGeneration.ts",
       timeout: Duration.seconds(5),
       environment: {
         USERS_TABLE_NAME: usersTable.tableName,
         REGION: stack.region,
       },
     });
-    usersTable.grant(this.preTokenGenerationLambda, 'dynamodb:GetItem');
+    usersTable.grant(this.preTokenGenerationLambda, "dynamodb:GetItem");
 
-    const userPool = new UserPool(stack, 'MyUserPool', {
+    const userPool = new UserPool(stack, "MyUserPool", {
       selfSignUpEnabled: true,
       userVerification: {
-        emailSubject: 'Verify your email for Izme!',
+        emailSubject: "Verify your email for !",
         emailBody: emailVerificationTemplate,
         emailStyle: VerificationEmailStyle.CODE,
       },
       userInvitation: {
-        emailSubject: 'Invite to join Izme!',
+        emailSubject: "Invite to join !",
         emailBody: createUserTemplate,
       },
       autoVerify: {
@@ -80,15 +80,15 @@ export class TommyCognito extends Construct {
         root: {
           bind(): CustomAttributeConfig {
             return {
-              dataType: 'Boolean',
+              dataType: "Boolean",
               mutable: false,
             };
           },
         },
-        MEMBER: {
+        organization: {
           bind(): CustomAttributeConfig {
             return {
-              dataType: 'String',
+              dataType: "String",
               mutable: false,
             };
           },
@@ -96,7 +96,7 @@ export class TommyCognito extends Construct {
         expiration: {
           bind(): CustomAttributeConfig {
             return {
-              dataType: 'DateTime',
+              dataType: "DateTime",
               mutable: true,
             };
           },
@@ -104,7 +104,7 @@ export class TommyCognito extends Construct {
         permissions: {
           bind(): CustomAttributeConfig {
             return {
-              dataType: 'String',
+              dataType: "String",
               mutable: true,
             };
           },
@@ -115,7 +115,7 @@ export class TommyCognito extends Construct {
     this.userPoolId = userPool.userPoolId;
     this.userPoolArn = userPool.userPoolArn;
 
-    const userPoolClient = new UserPoolClient(stack, 'MyUserPoolClient', {
+    const userPoolClient = new UserPoolClient(stack, "MyUserPoolClient", {
       userPool,
       generateSecret: false,
       authFlows: {
@@ -125,10 +125,10 @@ export class TommyCognito extends Construct {
       },
     });
     this.clientAppId = userPoolClient.userPoolClientId;
-    new CfnOutput(this, 'UserPoolId', {
+    new CfnOutput(this, "UserPoolId", {
       value: userPool.userPoolId,
     });
-    new CfnOutput(this, 'ClientAppId', {
+    new CfnOutput(this, "ClientAppId", {
       value: userPoolClient.userPoolClientId,
     });
 
