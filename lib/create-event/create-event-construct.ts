@@ -249,6 +249,7 @@ export class CreateEventConstruct extends Construct {
         EVENTS_TABLE_NAME: this.eventsTable.tableName,
       },
       timeout: Duration.minutes(2),
+
       memorySize: 2048,
     });
     this.photoBucket.grantReadWrite(resizePhotoLambda);
